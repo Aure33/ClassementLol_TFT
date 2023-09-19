@@ -1,0 +1,42 @@
+[
+    {
+        "nom": "Personne",
+        "nomCompte": "Player",
+        "LoL":{
+            "dernierMatch":"EUW1_6189686539",
+            "rank": "GOLD I",
+            "tier": "GOLD",
+            "LP": "I",
+            "victoire": "100",
+            "defaite": "100"
+        },
+        "TFT":{
+            "dernierMatch":"EUW1_6189686539",
+            "rank": "GOLD I",
+            "tier": "GOLD",
+            "LP": "I",
+            "victoire": "100",
+            "defaite": "100"
+        }
+    },
+    {
+        "nom": "Personne2",
+        "nomCompte": "Player2",
+        "LoL":{
+            "dernierMatch":"EUW1_6189686539",
+            "rank": "GOLD I",
+            "tier": "GOLD",
+            "LP": "I",
+            "victoire": "100",
+            "defaite": "100"
+        },
+        "TFT":{
+            "dernierMatch":"EUW1_6189686539",
+            "rank": "GOLD I",
+            "tier": "GOLD",
+            "LP": "I",
+            "victoire": "100",
+            "defaite": "100"
+        }
+    }
+]
