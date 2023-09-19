@@ -1,42 +1,82 @@
 [
     {
-        "nom": "Personne",
-        "nomCompte": "Player",
-        "LoL":{
-            "dernierMatch":"EUW1_6189686539",
-            "rank": "GOLD I",
-            "tier": "GOLD",
-            "LP": "I",
-            "victoire": "100",
-            "defaite": "100"
+        "nom": "le J",
+        "nomCompte": "ByYolker",
+        "photoProfil": "",
+        "puuid": "MwyL6GEmqdMOPXJQ9tunfT_4du0NYGX-8benNtQLUZ3tvJx2tqm4LevsEE7D8A_i2WI7SVgFzVhKaw",
+        "LoL": {
+            "dernierMatch": "EUW1_6189686539",
+            "rank": "GOLD",
+            "tier": "I",
+            "LP": "80",
+            "victoire": 100,
+            "defaite": 100,
+            "ratio": 0.0999000999000999,
+            "classement": "1000",
+            "CinqDerniersMatchs": [
+                true,
+                false,
+                true,
+                true,
+                false
+            ]
         },
-        "TFT":{
-            "dernierMatch":"EUW1_6189686539",
-            "rank": "GOLD I",
-            "tier": "GOLD",
-            "LP": "I",
+        "TFT": {
+            "dernierMatch": "EUW1_6189686539",
+            "rank": "GOLD",
+            "tier": "I",
+            "LP": "80",
             "victoire": "100",
-            "defaite": "100"
+            "defaite": "100",
+            "ratio": "50%",
+            "classement": "1000",
+            "CinqDerniersMatchs": [
+                true,
+                false,
+                true,
+                true,
+                false
+            ]
         }
     },
     {
         "nom": "Personne2",
-        "nomCompte": "Player2",
-        "LoL":{
-            "dernierMatch":"EUW1_6189686539",
-            "rank": "GOLD I",
-            "tier": "GOLD",
-            "LP": "I",
+        "nomCompte": "LordVauron",
+        "photoProfil": "",
+        "puuid": "LJM5EvjSQup-fXdD7kQ3VzDJL1BkMzxX8urG5dXC8t6cwvImobShqlCBIAjElThUpi5y8QJUdEvTKQ",
+        "LoL": {
+            "dernierMatch": "EUW1_6189686539",
+            "rank": "GOLD",
+            "tier": "I",
+            "LP": "80",
             "victoire": "100",
-            "defaite": "100"
+            "defaite": "100",
+            "ratio": 0.0999000999000999,
+            "classement": "1000",
+            "CinqDerniersMatchs": [
+                true,
+                false,
+                true,
+                true,
+                false
+            ]
         },
-        "TFT":{
-            "dernierMatch":"EUW1_6189686539",
-            "rank": "GOLD I",
-            "tier": "GOLD",
-            "LP": "I",
+        "TFT": {
+            "dernierMatch": "EUW1_6189686539",
+            "rank": "GOLD",
+            "tier": "I",
+            "LP": "80",
             "victoire": "100",
-            "defaite": "100"
+            "defaite": "100",
+            "ratio": "50%",
+            "classement": "1000",
+            "CinqDerniersMatchs": [
+                true,
+                false,
+                true,
+                true,
+                false
+            ]
         }
     }
 ]
