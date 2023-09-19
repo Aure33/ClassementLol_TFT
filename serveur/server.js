@@ -29,6 +29,40 @@ app.get('/api/profile', (req, res) => {
 }
 );
 
+app.post('/api/ajouter-compte', (req, res) => {
+  const { nom,nomCompte,rank,tier,LP,CinqDerniersMatchs,dernierMatch,win,loose,puuid } = req.body;
+
+  // Vérifie si le nom est déjà dans la liste de favoris
+  const ProfileData = chargerProfile();
+  const player = ProfileData.find((player) => player.nomCompte === nomCompte || player.puuid === puuid || player.nom === nom);
+
+  if (player !== undefined) {
+    res.status(400).json({ message: 'Le nom est déjà dans la liste de favoris' });
+    return;
+  }
+
+  // Ajouter le nom à la liste de favoris
+  ProfileData.push({
+    nomCompte: nomCompte,
+    puuid: puuid,
+    LoL: {
+      rank: rank,
+      tier: tier,
+      LP: LP,
+      victoire: win,
+      defaite: loose,
+      ratio: (win / (win + loose)) * 100,
+      CinqDerniersMatchs: CinqDerniersMatchs,
+      dernierMatch: dernierMatch,
+    }
+  });
+
+  fs.writeFileSync('./Profile.json', JSON.stringify(ProfileData));
+  res.json(ProfileData);
+});
+
+
+
 app.post('/api/modifier-profil', (req, res) => {
   const { nom,rank,tier,LP,CinqDerniersMatchs,dernierMatch,win,loose,puuid } = req.body;
 
@@ -36,17 +70,15 @@ app.post('/api/modifier-profil', (req, res) => {
   const ProfileData = chargerProfile();
   // fin the player in the json who has the same name as the one in the request
   const player = ProfileData.find((player) => player.nomCompte === nom);
-  console.log("puuid 0")
+
+  console.log(player)
   if (puuid !== undefined) {
-    console.log("puuid 1")
-    console.log(player)
-    console.log(puuid)
+
     player.puuid = puuid;
-    console.log("puuid 2")
   }
-  
+
   if (rank !== undefined) {
-    player.rank = rank;
+    player.LoL.rank = rank;
   }
   
   if (tier !== undefined) {
