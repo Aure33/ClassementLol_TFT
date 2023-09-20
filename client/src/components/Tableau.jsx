@@ -27,12 +27,12 @@ function Tableau(props) {
                         <td>
                             {player.lol.classement === 0 ? 'Non classé' : index + 1}
                         </td>
-                        <td>{player.nom}</td>
-                        <td>{player.nomCompte}</td>
+                        <td>{player.vraiNom}</td>
+                        <td>{player.vraiNomCompte}</td>
                         <td>{`${player.lol.rank} ${player.lol.tier} ${player.lol.LP}`}</td>
                         <td>{player.lol.victoire}</td>
                         <td>{player.lol.defaite}</td>
-                        <td>{player.lol.ratio}</td>
+                        <td>{player.lol.ratio}%</td>
                         <td>
                             <ul>
                                 {player.lol.CinqDerniersMatchs.map((result, resultIndex) => (
@@ -49,8 +49,8 @@ function Tableau(props) {
 
 Tableau.propTypes = {
     data: PropTypes.arrayOf(PropTypes.shape({
-        nom: PropTypes.string.isRequired,
-        nomCompte: PropTypes.string.isRequired,
+        vraiNom: PropTypes.string.isRequired,
+        vraiNomCompte: PropTypes.string.isRequired,
         lol: PropTypes.shape({
             rank: PropTypes.string.isRequired,
             tier: PropTypes.string.isRequired,

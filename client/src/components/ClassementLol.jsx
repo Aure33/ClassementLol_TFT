@@ -29,7 +29,7 @@ function ClassementLol() {
             for (const player of data) {
                 const classement = calculerClassement(player); // Calculer le classement
                 console.log(classement + ' ' + player.nomCompte);
-                await getInfoPlayer(player.nomCompte, classement); // Envoyer le classement à getInfoPlayer
+                await getInfoPlayer(player.nomCompte, classement, player.lol.dernierMatch); // Envoyer le classement à getInfoPlayer
             }
             const result = await axios.get('/api/profile');
             setData(result.data);
@@ -40,9 +40,9 @@ function ClassementLol() {
         }
     }
 
-    async function getInfoPlayer(nomCompte, classement) {
+    async function getInfoPlayer(nomCompte, classement, dernierMatch) {
         try {
-            addResult();
+            var trouve = false;
             const Profiles = await axios.get(
                 `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${nomCompte}?api_key=${riotApiKey}`
             );
@@ -71,8 +71,26 @@ function ClassementLol() {
                 const participant = match.info.participants.find(
                     (participant) => participant.puuid === Profiles.data.puuid
                 );
-
                 if (participant) {
+                    if (trouve === false) {
+                        if (matchID !== dernierMatch) {
+                            console.log("test5");
+                            if (participant.win === true) {
+                                await axios.post('/api/modifier-profil', {
+                                    nom: nomCompte,
+                                    win: 1,
+                                    dernierMatch: matchID,
+                                });
+                            } else {
+                                await axios.post('/api/modifier-profil', {
+                                    nom: nomCompte,
+                                    loose: 1,
+                                    dernierMatch: matchID,
+                                });
+                            }
+                        }
+                        trouve = true;
+                    }
                     if (participant.win === true) {
                         CinqDerniersMatchs.push(true);
                     } else {
@@ -84,9 +102,9 @@ function ClassementLol() {
                     }
                 }
             }
-            var rank = 'Unranked';
-            var tier = 'Unranked';
-            var LP = 'Unranked';
+            var rank;
+            var tier;
+            var LP;
 
             for (var y = 0; y < Ranked.data.length; y++) {
                 if (Ranked.data[y].queueType === 'RANKED_SOLO_5x5') {
@@ -96,6 +114,10 @@ function ClassementLol() {
                     break;
                 }
             }
+            console.log(rank + ' ' + tier + ' ' + LP);
+            console.log(CinqDerniersMatchs);
+            console.log(classement);
+            console.log(nomCompte);
             await axios.post('/api/modifier-profil', {
                 nom: nomCompte,
                 rank: rank,
@@ -106,66 +128,9 @@ function ClassementLol() {
             });
             console.log('Finis');
         } catch (error) {
+            alert("Calma l'API riot panique la");
             console.error(error);
-        }
-    }
-
-    async function addResult() {
-        try {
-            const response = await axios.get('/api/profile');
-            const players = response.data;
-
-            var lastGameID = [];
-            for (var i = 0; i < players.length; i++) {
-                lastGameID.push(players[i].lol.dernierMatch);
-                console.log('i');
-            }
-
-            var lastGameIDAPI = [];
-            for (var y = 0; y < players.length; y++) {
-                const Profiles = await axios.get(
-                    `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${players[y].nomCompte}?api_key=${riotApiKey}`
-                );
-                const matchIDResponse = await axios.get(
-                    `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${Profiles.data.puuid}/ids?start=0&count=1&api_key=${riotApiKey}`
-                );
-                const matchIDs = matchIDResponse.data;
-                lastGameIDAPI.push(matchIDs[0]);
-            }
-
-            for (var z = 0; z < players.length; z++) {
-                if (lastGameID[z] !== lastGameIDAPI[z]) {
-                    const matchResponse = await axios.get(
-                        `https://europe.api.riotgames.com/lol/match/v5/matches/${lastGameIDAPI[z]}?api_key=${riotApiKey}`
-                    );
-                    const match = matchResponse.data;
-
-                    const queueType = match.info.queueId;
-                    if (queueType !== 420) {
-                        continue;
-                    }
-
-                    const participant = match.info.participants.find(
-                        (participant) => participant.puuid === players[z].puuid
-                    );
-                    console.log('dernieregame : ' + lastGameIDAPI[z]);
-                    if (participant.win === true) {
-                        await axios.post('/api/modifier-profil', {
-                            nom: players[z].nomCompte,
-                            win: 1,
-                            dernierMatch: lastGameIDAPI[z],
-                        });
-                    } else {
-                        await axios.post('/api/modifier-profil', {
-                            nom: players[z].nomCompte,
-                            loose: 1,
-                            dernierMatch: lastGameIDAPI[z],
-                        });
-                    }
-                }
-            }
-        } catch (error) {
-            console.error(error);
+            return;
         }
     }
 
@@ -192,12 +157,12 @@ function ClassementLol() {
             "IV": 4,
         };
 
-        const rankValue = rankOrder[player.lol.rank] || 0;
-        const tierValue = tierOrder[player.lol.tier] || 0;
+        const rankValue = rankOrder[player.lol.rank];
+        const tierValue = tierOrder[player.lol.tier];
         const LPValue = player.lol.LP === "Unranked" ? 0 : parseInt(player.lol.LP);
 
         // Calcul du classement en fonction du rang, du tier et des LP
-        return rankValue * 100 + tierValue * 10 + LPValue;
+        return rankValue * 1000 + tierValue * 100 + LPValue;
     }
 
     return (

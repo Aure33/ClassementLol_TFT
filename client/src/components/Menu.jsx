@@ -25,7 +25,9 @@ function Menu() {
         try {
             // mettre le nom et le nom du compte en minuscule, sans espace et sans accent.
             const nom = accountData.nom.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "");
+            const vraiNom = accountData.nom;
             const nomCompte = accountData.nomCompte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "");
+            const vraiNomCompte = accountData.nomCompte;
             const jeux = accountData.jeux;
 
             // Initialisation des variables
@@ -69,11 +71,6 @@ function Menu() {
                 }
                 puuid = summonerInfo.data.puuid;
 
-                // Obtenir le dernier match en mode RANKED_SOLO_5x5
-                const matchIDsResponse = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/' + puuid + '/ids?start=0&count=1&api_key=' + riotApiKey);
-                const matchIDs = matchIDsResponse.data;
-                dernierMatch = matchIDs[0];
-
                 // Obtenir les informations de classement (rank) du joueur
                 const rankedInfo = await axios.get('https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerInfo.data.id + '?api_key=' + riotApiKey);
                 for (const entry of rankedInfo.data) {
@@ -88,7 +85,7 @@ function Menu() {
                 // Obtenir les résultats des cinq derniers matchs
                 const matchHistoryResponse = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/' + puuid + '/ids?start=0&count=20&api_key=' + riotApiKey);
                 const matchIDsCinqDerniersMatchs = matchHistoryResponse.data;
-
+                var trouve = false;
                 CinqDerniersMatchs = [];
                 for (const matchID of matchIDsCinqDerniersMatchs) {
                     const matchResponse = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/' + matchID + '?api_key=' + riotApiKey);
@@ -99,27 +96,29 @@ function Menu() {
                     if (queueType !== 420) {
                         continue;
                     }
-
-                    // Obtenez l'ID du participant
                     const participant = match.info.participants.find(participant => participant.puuid === puuid);
 
                     // Si le participant existe, vérifiez s'il a gagné ou perdu
                     if (participant) {
                         CinqDerniersMatchs.push(participant.win);
+                        if (trouve === false) {
+                            dernierMatch = matchID;
+                            trouve = true;
+                        }
                     }
                     if (CinqDerniersMatchs.length >= 5) {
                         break;
                     }
                 }
             } else if (jeux === 'tft') {
-                // Si le jeu est TFT, vous pouvez ajouter un traitement spécifique ici
                 return;
             }
-            console.log(nom);
-            console.log(nomCompte);
+
             await axios.post('/api/ajouter-compte', {
                 nom: nom,
+                vraiNom: vraiNom,
                 nomCompte: nomCompte,
+                vraiNomCompte: vraiNomCompte,
                 jeux: jeux,
                 puuid: puuid,
                 dernierMatch: dernierMatch,
@@ -129,7 +128,7 @@ function Menu() {
                 CinqDerniersMatchs: CinqDerniersMatchs
             });
             // dire à l'utilisateur que le compte a été ajouté ou non
-
+            alert('Le compte a été ajouté.');
             closeModal();
         } catch (error) {
             console.error(error);

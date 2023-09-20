@@ -30,12 +30,13 @@ app.get('/api/profile', (req, res) => {
 );
 
 app.post('/api/ajouter-compte', (req, res) => {
-  const { nom, nomCompte, jeux, puuid, dernierMatch, rank, tier, LP, CinqDerniersMatchs } = req.body;
+  let { nom, vraiNom, nomCompte, vraiNomCompte, jeux, puuid, dernierMatch, rank, tier, LP, CinqDerniersMatchs } = req.body;
 
+  console.log(req.body);
   // Vérifie si le nom est déjà dans la liste de favoris
-  const ProfileData = chargerProfile();
+  let ProfileData = chargerProfile();
   let existingPlayerIndex = -1;
-  const player = ProfileData.find((player, index) => {
+  let player = ProfileData.find((player, index) => {
     if (player.nomCompte === nomCompte || player.puuid === puuid || player.nom === nom) {
       existingPlayerIndex = index;
       return true;
@@ -53,7 +54,7 @@ app.post('/api/ajouter-compte', (req, res) => {
         LP,
         victoire: 0,
         defaite: 0,
-        ratio: 1,
+        ratio: 0,
         classement: 0,
         CinqDerniersMatchs,
       };
@@ -65,25 +66,27 @@ app.post('/api/ajouter-compte', (req, res) => {
     }
   } else {
     // Le joueur n'existe pas, ajoutez-le avec le jeu spécifié
-    const newPlayer = {
+    let newPlayer = {
       nom: nom,
+      vraiNom: vraiNom,
       nomCompte: nomCompte,
+      vraiNomCompte: vraiNomCompte,
       puuid: puuid,
     };
 
-    if (dernierMatch !== undefined) {
+    if (dernierMatch === undefined) {
       dernierMatch = "";
     }
-    if(rank !== undefined) {
+    if(rank === undefined) {
       rank = "Unranked";
     }
-    if(tier !== undefined) {
+    if(tier === undefined) {
       tier = "Unranked";
     }
-    if(LP !== undefined) {
+    if(LP === undefined) {
       LP = "Unranked";
     }
-    if(CinqDerniersMatchs !== undefined) {
+    if(CinqDerniersMatchs === undefined) {
       CinqDerniersMatchs = [];
     }
 
@@ -96,7 +99,7 @@ app.post('/api/ajouter-compte', (req, res) => {
         LP,
         victoire: 0,
         defaite: 0,
-        ratio: 1,
+        ratio: 0,
         classement: 0,
         CinqDerniersMatchs,
       };
@@ -117,6 +120,7 @@ app.post('/api/ajouter-compte', (req, res) => {
 app.post('/api/modifier-profil', (req, res) => {
   const { nom,rank,tier,classement,LP,CinqDerniersMatchs,dernierMatch,win,loose,puuid } = req.body;
 
+  console.log(req.body);
   // changer le profil du joueur
   const ProfileData = chargerProfile();
   // fin the player in the json who has the same name as the one in the request
@@ -125,41 +129,60 @@ app.post('/api/modifier-profil', (req, res) => {
   if (puuid !== undefined) {
 
     player.puuid = puuid;
+  } else {
+    player.puuid = player.puuid;
   }
 
   if (rank !== undefined) {
     player.lol.rank = rank;
+  } else {
+    player.lol.rank = player.lol.rank;
   }
   
   if (tier !== undefined) {
     player.lol.tier = tier;
+  } else {
+    player.lol.tier = player.lol.tier;
   }
   
   if (LP !== undefined) {
     player.lol.LP = LP;
+  } else {
+    player.lol.LP = player.lol.LP;
   }
   
   if (win !== undefined) {
     player.lol.victoire += win;
+  }else{
+    player.lol.victoire = player.lol.victoire;
   }
   
   if (loose !== undefined) {
     player.lol.defaite += loose;
+  } else {
+    player.lol.defaite = player.lol.defaite;
   }
 
   if (classement !== undefined) {
     player.lol.classement = classement;
+  } else {
+    player.lol.classement = player.lol.classement;
   }
   
   player.lol.ratio = (player.lol.victoire / (player.lol.victoire + player.lol.defaite)) * 100;
   
   if (CinqDerniersMatchs !== undefined) {
     player.lol.CinqDerniersMatchs = CinqDerniersMatchs;
+  } else {
+    player.lol.CinqDerniersMatchs = player.lol.CinqDerniersMatchs;
   }
   
   if (dernierMatch !== undefined) {
     player.lol.dernierMatch = dernierMatch;
+  } else {
+    player.lol.dernierMatch = player.lol.dernierMatch;
   }
+
   
 
   // Sauvegarder la liste de favoris dans le fichier JSON
@@ -177,14 +200,6 @@ app.post('/api/supprimer-compte', (req, res) => {
   // Sauvegarder la liste de favoris dans le fichier JSON
   fs.writeFileSync('./Profile.json', JSON.stringify(newProfileData));
   res.json(newProfileData);
-});
-
-app.post('/api/modifier-classement', (req, res) => {
-  const joueursTries = req.body;
-  console.log(joueursTries);
-  // Sauvegarder le classement trié dans le fichier JSON
-  fs.writeFileSync('./Profile.json', JSON.stringify(joueursTries));
-  res.json(joueursTries);
 });
 
 
