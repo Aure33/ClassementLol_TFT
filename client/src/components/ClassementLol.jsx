@@ -1,4 +1,4 @@
-import {  useEffect } from 'react';
+import {  useEffect,useState } from 'react';
 import axios from 'axios';
 import { Link } from "react-router-dom";
 axios.defaults.baseURL = 'http://localhost:3000'; // Remplacez par l'URL de votre backend
@@ -7,42 +7,16 @@ const riotApiKey = ('RGAPI-d7d2ccdd-3ac1-48c9-9a2b-d1bea7cc3bb1');
 
 function ClassementLol() {
 
-
-    const chargementAPI = async () => {
-        // const response = await axios.get('/api/profile');
-        // setData(response.data);
-    }
+    const [data, setData] = useState([]);
 
     useEffect(() => {
-        chargementAPI();
+        async function fetchData() {
+            const result = await axios.get('/api/profile');
+            setData(result.data);
+        }
+        fetchData();
     }, []);
 
-    async function initPuuid() {
-        try {
-            // get all players
-            const response = await axios.get('/api/profile');
-            const players = response.data;
-
-            // get all players puuid from the LoL API
-            var puuid = [];
-            for (var i = 0; i < players.length; i++) {
-                const Profiles = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + players[i].nomCompte + '?api_key=' + riotApiKey);
-                puuid.push(Profiles.data.puuid);
-            }
-
-            console.log(puuid);
-
-            // add the puuid to the json
-            for (var y = 0; y < players.length; y++) {
-                await axios.post('/api/modifier-profil', {
-                    nom: players[y].nomCompte,
-                    puuid: puuid[y]
-                });
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
 
     async function addResult() {
         try {
@@ -53,7 +27,7 @@ function ClassementLol() {
             // get all players last gameID
             var lastGameID = [];
             for (var i = 0; i < players.length; i++) {
-                lastGameID.push(players[i].LoL.dernierMatch);
+                lastGameID.push(players[i].lol.dernierMatch);
                 console.log("i");
             }
 
@@ -144,9 +118,9 @@ function ClassementLol() {
                     }
                 }
             }
-            var rank = "Unranked";
-            var tier = "Unranked";
-            var LP = "Unranked";
+            var rank = "";
+            var tier = "";
+            var LP = "";
 
             for (var y = 0; y < Ranked.data.length; y++) {
                 if (Ranked.data[y].queueType === 'RANKED_SOLO_5x5') {
@@ -156,10 +130,6 @@ function ClassementLol() {
                     break;
                 }
             }
-            console.log("rank : " + rank);
-            console.log("tier : " + tier);
-            console.log("LP : " + LP);
-            console.log("nomCompte : " + nomCompte);
             await axios.post('/api/modifier-profil', {
                 nom: nomCompte,
                 rank: rank,
@@ -177,9 +147,8 @@ function ClassementLol() {
     return (
         <>
             <h1> LOL : League Of Legends {riotApiKey} </h1>
-
-            <button onClick={() => initPuuid()}>Init puiid</button>
-            <button onClick={() => getInfoPlayer("LordVauron")}>Get Info Player</button>
+            <h1>{data}</h1>
+            <button onClick={() => getInfoPlayer()}>Recharger</button>
             <br></br>
             <Link to="/ClassementIUT/">Menu</Link>
         </>

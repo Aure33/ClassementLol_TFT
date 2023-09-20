@@ -30,36 +30,88 @@ app.get('/api/profile', (req, res) => {
 );
 
 app.post('/api/ajouter-compte', (req, res) => {
-  const { nom,nomCompte,rank,tier,LP,CinqDerniersMatchs,dernierMatch,win,loose,puuid } = req.body;
+  const { nom, nomCompte, jeux, puuid, dernierMatch, rank, tier, LP, CinqDerniersMatchs } = req.body;
 
   // Vérifie si le nom est déjà dans la liste de favoris
   const ProfileData = chargerProfile();
-  const player = ProfileData.find((player) => player.nomCompte === nomCompte || player.puuid === puuid || player.nom === nom);
-
-  if (player !== undefined) {
-    res.status(400).json({ message: 'Le nom est déjà dans la liste de favoris' });
-    return;
-  }
-
-  // Ajouter le nom à la liste de favoris
-  ProfileData.push({
-    nomCompte: nomCompte,
-    puuid: puuid,
-    LoL: {
-      rank: rank,
-      tier: tier,
-      LP: LP,
-      victoire: win,
-      defaite: loose,
-      ratio: (win / (win + loose)) * 100,
-      CinqDerniersMatchs: CinqDerniersMatchs,
-      dernierMatch: dernierMatch,
+  let existingPlayerIndex = -1;
+  const player = ProfileData.find((player, index) => {
+    if (player.nomCompte === nomCompte || player.puuid === puuid || player.nom === nom) {
+      existingPlayerIndex = index;
+      return true;
     }
+    return false;
   });
 
+  if (player !== undefined) {
+    // Le joueur existe déjà, vérifiez s'il a le jeu dans son profil
+    if (jeux === 'lol' && !ProfileData[existingPlayerIndex].lol) {
+      ProfileData[existingPlayerIndex].lol = {
+        dernierMatch,
+        rank,
+        tier,
+        LP,
+        victoire: 0,
+        defaite: 0,
+        ratio: 1,
+        classement: 0,
+        CinqDerniersMatchs,
+      };
+    } else if (jeux === 'tft' && !ProfileData[existingPlayerIndex].tft) {
+      return;
+    } else {
+      res.status(400).json({ message: 'Le joueur a déjà ce jeu dans son profil' });
+      return;
+    }
+  } else {
+    // Le joueur n'existe pas, ajoutez-le avec le jeu spécifié
+    const newPlayer = {
+      nom: nom,
+      nomCompte: nomCompte,
+      puuid: puuid,
+    };
+
+    if (dernierMatch !== undefined) {
+      dernierMatch = "";
+    }
+    if(rank !== undefined) {
+      rank = "";
+    }
+    if(tier !== undefined) {
+      tier = "";
+    }
+    if(LP !== undefined) {
+      LP = "";
+    }
+    if(CinqDerniersMatchs !== undefined) {
+      CinqDerniersMatchs = [];
+    }
+
+
+    if (jeux === 'lol') {
+      newPlayer.lol = {
+        dernierMatch,
+        rank,
+        tier,
+        LP,
+        victoire: 0,
+        defaite: 0,
+        ratio: 1,
+        classement: 0,
+        CinqDerniersMatchs,
+      };
+    } else if (jeux === 'tft') {
+    }
+
+    ProfileData.push(newPlayer);
+  }
+
+  console.log(ProfileData);
+  // Sauvegarder la liste de favoris dans le fichier JSON
   fs.writeFileSync('./Profile.json', JSON.stringify(ProfileData));
   res.json(ProfileData);
 });
+
 
 
 
@@ -78,33 +130,33 @@ app.post('/api/modifier-profil', (req, res) => {
   }
 
   if (rank !== undefined) {
-    player.LoL.rank = rank;
+    player.lol.rank = rank;
   }
   
   if (tier !== undefined) {
-    player.LoL.tier = tier;
+    player.lol.tier = tier;
   }
   
   if (LP !== undefined) {
-    player.LoL.LP = LP;
+    player.lol.LP = LP;
   }
   
   if (win !== undefined) {
-    player.LoL.victoire += win;
+    player.lol.victoire += win;
   }
   
   if (loose !== undefined) {
-    player.LoL.defaite += loose;
+    player.lol.defaite += loose;
   }
   
-  player.LoL.ratio = (player.LoL.victoire / (player.LoL.victoire + player.LoL.defaite)) * 100;
+  player.lol.ratio = (player.lol.victoire / (player.lol.victoire + player.lol.defaite)) * 100;
   
   if (CinqDerniersMatchs !== undefined) {
-    player.LoL.CinqDerniersMatchs = CinqDerniersMatchs;
+    player.lol.CinqDerniersMatchs = CinqDerniersMatchs;
   }
   
   if (dernierMatch !== undefined) {
-    player.LoL.dernierMatch = dernierMatch;
+    player.lol.dernierMatch = dernierMatch;
   }
   
 

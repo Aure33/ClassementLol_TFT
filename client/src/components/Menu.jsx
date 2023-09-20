@@ -23,35 +23,119 @@ function Menu() {
 
     const handleAddAccount = async (accountData) => {
         try {
-
-            console.log("-------SIUUU--------");
-            console.log(accountData);
-
-            const nom = accountData.nom;
-            const nomCompte = accountData.nomCompte;
+            // mettre le nom et le nom du compte en minuscule, sans espace et sans accent.
+            const nom = accountData.nom.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "");
+            const nomCompte = accountData.nomCompte.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "");
             const jeux = accountData.jeux;
 
-            console.log(nom)
-            console.log(jeux)
-            if (jeux === 'lol') {
-                const Profiles = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + nomCompte + '?api_key=' + riotApiKey);
-                const matchIDResponse = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/' + Profiles.data.puuid + '/ids?start=0&count=1&api_key=' + riotApiKey);
-                console.log(matchIDResponse.data[0]);
-            } else if (jeux === 'tft') {
-                return;
+            // Initialisation des variables
+            var puuid;
+            var dernierMatch;
+            var rank;
+            var tier;
+            var LP;
+            var CinqDerniersMatchs;
+
+            const existingProfiles = await axios.get('/api/profile'); // Remplacez par votre endpoint API
+
+            // Vérifier si le joueur existe déjà dans le jeu choisi
+            
+            if(jeux === 'lol'){
+                for (const existingProfile of existingProfiles.data) {
+                    if (existingProfile.nom === nom || existingProfile.nomCompte === nomCompte && existingProfile.lol) {
+                        // Afficher un message d'erreur indiquant que le joueur a déjà un compte dans ce jeu
+                        alert('Le joueur a déjà un compte dans ce jeu.');
+                        return;
+                    }
+                }
+            }else if(jeux === 'tft'){
+                for (const existingProfile of existingProfiles.data) {
+                    if (existingProfile.nom  === nom || existingProfile.nomCompte === nomCompte && existingProfile.tft) {
+                        // Afficher un message d'erreur indiquant que le joueur a déjà un compte dans ce jeu
+                        alert('Le joueur a déjà un compte dans ce jeu.');
+                        return;
+                    }
+                }
             }
 
+            if (jeux === 'lol') {
+                // Obtenir les informations de base du joueur
+                var summonerInfo;
+                try{
+                 summonerInfo = await axios.get('https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/' + nomCompte + '?api_key=' + riotApiKey);
+                }catch(error){
+                    alert('Le joueur n\'existe pas');
+                    return;
+                }
+                puuid = summonerInfo.data.puuid;
 
+                // Obtenir le dernier match en mode RANKED_SOLO_5x5
+                const matchIDsResponse = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/' + puuid + '/ids?start=0&count=1&api_key=' + riotApiKey);
+                const matchIDs = matchIDsResponse.data;
+                dernierMatch = matchIDs[0];
 
+                // Obtenir les informations de classement (rank) du joueur
+                const rankedInfo = await axios.get('https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/' + summonerInfo.data.id + '?api_key=' + riotApiKey);
+                for (const entry of rankedInfo.data) {
+                    if (entry.queueType === 'RANKED_SOLO_5x5') {
+                        rank = entry.rank;
+                        tier = entry.tier;
+                        LP = entry.leaguePoints;
+                        break;
+                    }
+                }
 
+                // Obtenir les résultats des cinq derniers matchs
+                const matchHistoryResponse = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/' + puuid + '/ids?start=0&count=20&api_key=' + riotApiKey);
+                const matchIDsCinqDerniersMatchs = matchHistoryResponse.data;
 
+                CinqDerniersMatchs = [];
+                for (const matchID of matchIDsCinqDerniersMatchs) {
+                    const matchResponse = await axios.get('https://europe.api.riotgames.com/lol/match/v5/matches/' + matchID + '?api_key=' + riotApiKey);
+                    const match = matchResponse.data;
 
-            await axios.post('/api/ajouter-compte', accountData);
+                    // Vérifiez si c'est un match en mode RANKED_SOLO_5x5
+                    const queueType = match.info.queueId;
+                    if (queueType !== 420) {
+                        continue;
+                    }
 
+                    // Obtenez l'ID du participant
+                    const participant = match.info.participants.find(participant => participant.puuid === puuid);
+
+                    // Si le participant existe, vérifiez s'il a gagné ou perdu
+                    if (participant) {
+                        CinqDerniersMatchs.push(participant.win);
+                    }
+                    if (CinqDerniersMatchs.length >= 5) {
+                        break;
+                    }
+                }
+            } else if (jeux === 'tft') {
+                // Si le jeu est TFT, vous pouvez ajouter un traitement spécifique ici
+                return;
+            }
+            console.log(nom);
+            console.log(nomCompte);
+            await axios.post('/api/ajouter-compte', {
+                nom: nom,
+                nomCompte: nomCompte,
+                jeux: jeux,
+                puuid: puuid,
+                dernierMatch: dernierMatch,
+                rank: rank,
+                tier: tier,
+                LP: LP,
+                CinqDerniersMatchs: CinqDerniersMatchs
+            });
+            // dire à l'utilisateur que le compte a été ajouté ou non
+
+            closeModal();
         } catch (error) {
             console.error(error);
         }
     };
+
     return (
         <>
             <h1> ClassementIUT </h1>

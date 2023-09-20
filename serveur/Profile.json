@@ -4,24 +4,7 @@
         "nomCompte": "ByYolKer",
         "photoProfil": "",
         "puuid": "MwyL6GEmqdMOPXJQ9tunfT_4du0NYGX-8benNtQLUZ3tvJx2tqm4LevsEE7D8A_i2WI7SVgFzVhKaw",
-        "LoL": {
-            "dernierMatch": "EUW1_6599504",
-            "rank": "SILVER",
-            "tier": "IV",
-            "LP": 73,
-            "victoire": 0,
-            "defaite": 0,
-            "ratio": 49.75124378109453,
-            "classement": 0,
-            "CinqDerniersMatchs": [
-                true,
-                false,
-                false,
-                false,
-                true
-            ]
-        },
-        "TFT": {
+        "tft": {
             "dernierMatch": "EUW1_6189686539",
             "rank": "GOLD",
             "tier": "I",
@@ -36,22 +19,51 @@
                 true,
                 true,
                 false
+            ]
+        },
+        "lol": {
+            "dernierMatch": "EUW1_6600562610",
+            "rank": "IV",
+            "tier": "SILVER",
+            "LP": 73,
+            "victoire": 0,
+            "defaite": 0,
+            "ratio": 1,
+            "classement": 0,
+            "CinqDerniersMatchs": [
+                true,
+                false,
+                false,
+                false,
+                true
             ]
         }
     },
     {
-        "nom": "Theo",
-        "nomCompte": "LordVauron",
-        "photoProfil": "",
+        "nom": "zz",
+        "nomCompte": "azdazd",
+        "puuid": "Swf_s6w5Vpf3rgIfjVpz-DHadDZsvS1LgXUjHVTucnnXFFuaUzZXI8CAuEgZC3yKNdQUOo23ql1npA",
+        "lol": {
+            "dernierMatch": "EUW1_5674417044",
+            "victoire": 0,
+            "defaite": 0,
+            "ratio": 1,
+            "classement": 0,
+            "CinqDerniersMatchs": []
+        }
+    },
+    {
+        "nom": "theo",
+        "nomCompte": "lordvauron",
         "puuid": "LJM5EvjSQup-fXdD7kQ3VzDJL1BkMzxX8urG5dXC8t6cwvImobShqlCBIAjElThUpi5y8QJUdEvTKQ",
-        "LoL": {
-            "dernierMatch": "EUW1_6599504831",
-            "rank": "SILVER",
-            "tier": "IV",
+        "lol": {
+            "dernierMatch": "EUW1_6600562610",
+            "rank": "IV",
+            "tier": "SILVER",
             "LP": 75,
             "victoire": 0,
             "defaite": 0,
-            "ratio": null,
+            "ratio": 1,
             "classement": 0,
             "CinqDerniersMatchs": [
                 false,
@@ -59,23 +71,6 @@
                 true,
                 true,
                 true
-            ]
-        },
-        "TFT": {
-            "dernierMatch": "EUW1_6189686539",
-            "rank": "GOLD",
-            "tier": "I",
-            "LP": "80",
-            "victoire": 0,
-            "defaite": 0,
-            "ratio": 0,
-            "classement": 0,
-            "CinqDerniersMatchs": [
-                true,
-                false,
-                true,
-                true,
-                false
             ]
         }
     }
