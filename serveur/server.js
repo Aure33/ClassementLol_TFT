@@ -75,13 +75,13 @@ app.post('/api/ajouter-compte', (req, res) => {
       dernierMatch = "";
     }
     if(rank !== undefined) {
-      rank = "";
+      rank = "Unranked";
     }
     if(tier !== undefined) {
-      tier = "";
+      tier = "Unranked";
     }
     if(LP !== undefined) {
-      LP = "";
+      LP = "Unranked";
     }
     if(CinqDerniersMatchs !== undefined) {
       CinqDerniersMatchs = [];
@@ -106,7 +106,6 @@ app.post('/api/ajouter-compte', (req, res) => {
     ProfileData.push(newPlayer);
   }
 
-  console.log(ProfileData);
   // Sauvegarder la liste de favoris dans le fichier JSON
   fs.writeFileSync('./Profile.json', JSON.stringify(ProfileData));
   res.json(ProfileData);
@@ -116,14 +115,13 @@ app.post('/api/ajouter-compte', (req, res) => {
 
 
 app.post('/api/modifier-profil', (req, res) => {
-  const { nom,rank,tier,LP,CinqDerniersMatchs,dernierMatch,win,loose,puuid } = req.body;
+  const { nom,rank,tier,classement,LP,CinqDerniersMatchs,dernierMatch,win,loose,puuid } = req.body;
 
   // changer le profil du joueur
   const ProfileData = chargerProfile();
   // fin the player in the json who has the same name as the one in the request
   const player = ProfileData.find((player) => player.nomCompte === nom);
 
-  console.log(player)
   if (puuid !== undefined) {
 
     player.puuid = puuid;
@@ -148,6 +146,10 @@ app.post('/api/modifier-profil', (req, res) => {
   if (loose !== undefined) {
     player.lol.defaite += loose;
   }
+
+  if (classement !== undefined) {
+    player.lol.classement = classement;
+  }
   
   player.lol.ratio = (player.lol.victoire / (player.lol.victoire + player.lol.defaite)) * 100;
   
@@ -160,12 +162,30 @@ app.post('/api/modifier-profil', (req, res) => {
   }
   
 
-  console.log("SIU")
   // Sauvegarder la liste de favoris dans le fichier JSON
   fs.writeFileSync('./Profile.json', JSON.stringify(ProfileData));
   res.json(ProfileData);
 });
 
+app.post('/api/supprimer-compte', (req, res) => {
+  const { nomCompte } = req.body;
+
+  // Supprimer le compte de la liste de favoris
+  const ProfileData = chargerProfile();
+  const newProfileData = ProfileData.filter((player) => player.nomCompte !== nomCompte);
+
+  // Sauvegarder la liste de favoris dans le fichier JSON
+  fs.writeFileSync('./Profile.json', JSON.stringify(newProfileData));
+  res.json(newProfileData);
+});
+
+app.post('/api/modifier-classement', (req, res) => {
+  const joueursTries = req.body;
+  console.log(joueursTries);
+  // Sauvegarder le classement trié dans le fichier JSON
+  fs.writeFileSync('./Profile.json', JSON.stringify(joueursTries));
+  res.json(joueursTries);
+});
 
 
 
