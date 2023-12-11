@@ -2,9 +2,10 @@ import { useEffect, useState, useRef  } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Tableau from './Tableau';
+import { riotAPIKeyLoL } from "../../keys/keys";
+
 
 axios.defaults.baseURL = 'http://localhost:3000'; // Remplacez par l'URL de votre backend
-const riotApiKey = 'RGAPI-d7d2ccdd-3ac1-48c9-9a2b-d1bea7cc3bb1';
 
 function ClassementLol() {
     const [data, setData] = useState([]);
@@ -71,14 +72,14 @@ function ClassementLol() {
         try {
             var trouve = false;
             const Profiles = await axios.get(
-                `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${nomCompte}?api_key=${riotApiKey}`
+                `https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/${nomCompte}?api_key=${riotAPIKeyLoL}`
             );
             const summonerId = Profiles.data.id;
             const Ranked = await axios.get(
-                `https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${riotApiKey}`
+                `https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/${summonerId}?api_key=${riotAPIKeyLoL}`
             );
             const matchIDResponse = await axios.get(
-                `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${Profiles.data.puuid}/ids?start=0&count=20&api_key=${riotApiKey}`
+                `https://europe.api.riotgames.com/lol/match/v5/matches/by-puuid/${Profiles.data.puuid}/ids?start=0&count=20&api_key=${riotAPIKeyLoL}`
             );
             const matchIDs = matchIDResponse.data;
             var count = 0;
@@ -86,7 +87,7 @@ function ClassementLol() {
 
             for (const matchID of matchIDs) {
                 const matchResponse = await axios.get(
-                    `https://europe.api.riotgames.com/lol/match/v5/matches/${matchID}?api_key=${riotApiKey}`
+                    `https://europe.api.riotgames.com/lol/match/v5/matches/${matchID}?api_key=${riotAPIKeyLoL}`
                 );
                 const match = matchResponse.data;
 
