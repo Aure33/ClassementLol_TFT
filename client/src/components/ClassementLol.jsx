@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef  } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import Tableau from './Tableau';
@@ -9,6 +9,9 @@ const riotApiKey = 'RGAPI-d7d2ccdd-3ac1-48c9-9a2b-d1bea7cc3bb1';
 function ClassementLol() {
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [timeLeft, setTimeLeft] = useState(120); // Temps restant en secondes, initialisez à 60 pour une actualisation après 1 minute
+
+    const intervalRef = useRef(null);
 
     useEffect(() => {
         async function fetchData() {
@@ -19,8 +22,31 @@ function ClassementLol() {
                 console.error(error);
             }
         }
+
         fetchData();
+
+        // Démarrez l'intervalle pour rafraîchir toutes les minutes
+        intervalRef.current = setInterval(() => {
+            rechargerInformations();
+        }, 120000); 
+
+        // Nettoyez l'intervalle lors du démontage du composant
+        return () => {
+            if (intervalRef.current) {
+                clearInterval(intervalRef.current);
+            }
+        };
     }, []);
+
+        // Fonction pour mettre à jour le temps restant toutes les secondes
+        useEffect(() => {
+            if (timeLeft > 0) {
+                const timer = setInterval(() => {
+                    setTimeLeft((prevTimeLeft) => prevTimeLeft - 1);
+                }, 1000); // 1000 ms = 1 seconde
+                return () => clearInterval(timer);
+            }
+        }, [timeLeft]);
 
     async function rechargerInformations() {
         try {
@@ -33,6 +59,7 @@ function ClassementLol() {
             }
             const result = await axios.get('/api/profile');
             setData(result.data);
+            setTimeLeft(120);
         } catch (error) {
             console.error(error);
         } finally {
@@ -114,10 +141,6 @@ function ClassementLol() {
                     break;
                 }
             }
-            console.log(rank + ' ' + tier + ' ' + LP);
-            console.log(CinqDerniersMatchs);
-            console.log(classement);
-            console.log(nomCompte);
             await axios.post('/api/modifier-profil', {
                 nom: nomCompte,
                 rank: rank,
@@ -151,10 +174,10 @@ function ClassementLol() {
 
         const tierOrder = {
             "Unranked": 0,
-            "I": 1,
-            "II": 2,
-            "III": 3,
-            "IV": 4,
+            "I": 4,
+            "II": 3,
+            "III": 2,
+            "IV": 1,
         };
 
         const rankValue = rankOrder[player.lol.rank];
@@ -168,6 +191,7 @@ function ClassementLol() {
     return (
         <>
             <h1>Classement LoL</h1>
+            <p>Temps restant avant la prochaine actualisation : {timeLeft} secondes</p>
             <button onClick={rechargerInformations} disabled={isLoading}>
                 {isLoading ? 'Chargement...' : 'Recharger'}
             </button>
